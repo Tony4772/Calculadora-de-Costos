@@ -1,0 +1,6 @@
+{
+  "name": "Calculadora de Costos",
+  "description": "Calculadora profesional de costos de recetas, insumos, empaques y márgenes de ganancia con arquitectura MVVM.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
