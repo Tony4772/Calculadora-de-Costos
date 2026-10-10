@@ -63,6 +63,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.CatalogItem
@@ -478,7 +479,7 @@ fun RecipeItemRowCard(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Row 2: Quantity Editor with Stepper buttons
+            // Row 2: Quantity Editor with Stepper buttons & Subtotal display
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -486,8 +487,9 @@ fun RecipeItemRowCard(
             ) {
                 // Quantity editor with Stepper
                 Row(
+                    modifier = Modifier.weight(1f, fill = false),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     // Decrease button
                     IconButton(
@@ -521,8 +523,8 @@ fun RecipeItemRowCard(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         singleLine = true,
                         modifier = Modifier
-                            .width(84.dp)
-                            .height(48.dp)
+                            .width(72.dp)
+                            .height(44.dp)
                             .testTag("qty_input_${recipeItem.id}"),
                         textStyle = MaterialTheme.typography.bodyMedium.copy(
                             textAlign = TextAlign.Center,
@@ -555,15 +557,20 @@ fun RecipeItemRowCard(
                         text = catalog.unit,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(start = 4.dp)
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .padding(start = 2.dp)
+                            .weight(1f, fill = false)
                     )
                 }
+
+                Spacer(modifier = Modifier.width(6.dp))
 
                 // Cost Formula Display: 60 × S/ 0.020 = S/ 1.20
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.padding(start = 8.dp)
+                    color = MaterialTheme.colorScheme.surface
                 ) {
                     Column(
                         horizontalAlignment = Alignment.End,
@@ -572,12 +579,16 @@ fun RecipeItemRowCard(
                         Text(
                             text = formatCurrency(itemDetail.subtotalCost, currencySymbol),
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
+                            maxLines = 1,
+                            softWrap = false
                         )
                         Text(
                             text = String.format(Locale.US, "%.1f × %.3f", recipeItem.quantity, catalog.unitCost),
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            maxLines = 1,
+                            softWrap = false
                         )
                     }
                 }

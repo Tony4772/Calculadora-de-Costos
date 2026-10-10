@@ -1,0 +1,1 @@
+Versión inicial 1.0: Gestión de catálogo, cálculo de recetas, mermas, impuestos y margen de ganancia real.

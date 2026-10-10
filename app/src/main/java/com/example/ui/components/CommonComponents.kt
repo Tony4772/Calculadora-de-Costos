@@ -187,8 +187,9 @@ fun CurrencyPickerModal(
 ) {
     val options = listOf(
         "S/" to "Sol Peruano (S/)",
-        "$" to "Dólar / Peso ($)",
+        "$" to "Dólar ($)",
         "€" to "Euro (€)",
+        "CUP" to "Peso Cubano (CUP / \$MN)",
         "MXN" to "Peso Mexicano (MXN)",
         "COP" to "Peso Colombiano (COP)",
         "ARS" to "Peso Argentino (ARS)",

@@ -7,32 +7,22 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.MenuBook
-import androidx.compose.material.icons.filled.Payments
-import androidx.compose.material.icons.filled.PointOfSale
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.TrendingUp
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -42,39 +32,42 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.data.database.AppDatabase
 import com.example.data.repository.CostCalculatorRepository
+import com.example.ui.components.BannerAd
 import com.example.ui.components.CurrencyPickerModal
 import com.example.ui.screens.CatalogScreen
 import com.example.ui.screens.RecipeBuilderScreen
 import com.example.ui.screens.RecipeListScreen
 import com.example.ui.screens.ResultsScreen
+import com.example.ui.screens.SplashScreen
 import com.example.ui.theme.MyApplicationTheme
-import com.example.ui.theme.PrimaryGold
 import com.example.ui.viewmodel.AppTab
 import com.example.ui.viewmodel.CostViewModel
+import com.google.android.gms.ads.MobileAds
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        MobileAds.initialize(this) {}
 
         setContent {
             MyApplicationTheme {
@@ -101,11 +94,17 @@ class MainActivity : ComponentActivity() {
                 val financials by viewModel.recipeFinancials.collectAsStateWithLifecycle()
 
                 var showCurrencyPicker by remember { mutableStateOf(false) }
+                var showSplash by remember { mutableStateOf(true) }
 
-                // Back navigation handling
-                BackHandler(enabled = currentTab != AppTab.RECIPE) {
-                    viewModel.selectTab(AppTab.RECIPE)
-                }
+                if (showSplash) {
+                    SplashScreen(
+                        onTimeout = { showSplash = false }
+                    )
+                } else {
+                    // Back navigation handling
+                    BackHandler(enabled = currentTab != AppTab.RECIPE) {
+                        viewModel.selectTab(AppTab.RECIPE)
+                    }
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
@@ -165,77 +164,120 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                     bottomBar = {
-                        NavigationBar(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            tonalElevation = 6.dp
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.surface),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            NavigationBarItem(
-                                selected = currentTab == AppTab.CATALOG,
-                                onClick = { viewModel.selectTab(AppTab.CATALOG) },
-                                icon = {
-                                    Icon(
-                                        imageVector = Icons.Default.Inventory2,
-                                        contentDescription = "Catálogo"
-                                    )
-                                },
-                                label = { Text("Catálogo") },
-                                colors = NavigationBarItemDefaults.colors(
-                                    selectedIconColor = MaterialTheme.colorScheme.onPrimary,
-                                    indicatorColor = MaterialTheme.colorScheme.primary
-                                ),
-                                modifier = Modifier.testTag("nav_tab_catalog")
+                            BannerAd(
+                                adUnitId = "ca-app-pub-7470413991742442/7991867129",
+                                modifier = Modifier.fillMaxWidth()
                             )
+                            NavigationBar(
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                tonalElevation = 6.dp
+                            ) {
+                                NavigationBarItem(
+                                    selected = currentTab == AppTab.CATALOG,
+                                    onClick = { viewModel.selectTab(AppTab.CATALOG) },
+                                    icon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Inventory2,
+                                            contentDescription = "Catálogo"
+                                        )
+                                    },
+                                    label = {
+                                        Text(
+                                            text = "Catálogo",
+                                            textAlign = TextAlign.Center,
+                                            maxLines = 1,
+                                            fontSize = 11.sp,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    },
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                                        indicatorColor = MaterialTheme.colorScheme.primary
+                                    ),
+                                    modifier = Modifier.testTag("nav_tab_catalog")
+                                )
 
-                            NavigationBarItem(
-                                selected = currentTab == AppTab.RECIPE,
-                                onClick = { viewModel.selectTab(AppTab.RECIPE) },
-                                icon = {
-                                    Icon(
-                                        imageVector = Icons.Default.Restaurant,
-                                        contentDescription = "Armar Ración"
-                                    )
-                                },
-                                label = { Text("Armar Ración") },
-                                colors = NavigationBarItemDefaults.colors(
-                                    selectedIconColor = MaterialTheme.colorScheme.onPrimary,
-                                    indicatorColor = MaterialTheme.colorScheme.primary
-                                ),
-                                modifier = Modifier.testTag("nav_tab_recipe")
-                            )
+                                NavigationBarItem(
+                                    selected = currentTab == AppTab.RECIPE,
+                                    onClick = { viewModel.selectTab(AppTab.RECIPE) },
+                                    icon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Restaurant,
+                                            contentDescription = "Armar Ración"
+                                        )
+                                    },
+                                    label = {
+                                        Text(
+                                            text = "Armar Ración",
+                                            textAlign = TextAlign.Center,
+                                            maxLines = 1,
+                                            fontSize = 11.sp,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    },
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                                        indicatorColor = MaterialTheme.colorScheme.primary
+                                    ),
+                                    modifier = Modifier.testTag("nav_tab_recipe")
+                                )
 
-                            NavigationBarItem(
-                                selected = currentTab == AppTab.RESULTS,
-                                onClick = { viewModel.selectTab(AppTab.RESULTS) },
-                                icon = {
-                                    Icon(
-                                        imageVector = Icons.Default.TrendingUp,
-                                        contentDescription = "Resultados"
-                                    )
-                                },
-                                label = { Text("Resultados") },
-                                colors = NavigationBarItemDefaults.colors(
-                                    selectedIconColor = MaterialTheme.colorScheme.onPrimary,
-                                    indicatorColor = MaterialTheme.colorScheme.primary
-                                ),
-                                modifier = Modifier.testTag("nav_tab_results")
-                            )
+                                NavigationBarItem(
+                                    selected = currentTab == AppTab.RESULTS,
+                                    onClick = { viewModel.selectTab(AppTab.RESULTS) },
+                                    icon = {
+                                        Icon(
+                                            imageVector = Icons.Default.TrendingUp,
+                                            contentDescription = "Resultados"
+                                        )
+                                    },
+                                    label = {
+                                        Text(
+                                            text = "Resultados",
+                                            textAlign = TextAlign.Center,
+                                            maxLines = 1,
+                                            fontSize = 11.sp,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    },
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                                        indicatorColor = MaterialTheme.colorScheme.primary
+                                    ),
+                                    modifier = Modifier.testTag("nav_tab_results")
+                                )
 
-                            NavigationBarItem(
-                                selected = currentTab == AppTab.RECIPES_LIST,
-                                onClick = { viewModel.selectTab(AppTab.RECIPES_LIST) },
-                                icon = {
-                                    Icon(
-                                        imageVector = Icons.Default.MenuBook,
-                                        contentDescription = "Mis Recetas"
-                                    )
-                                },
-                                label = { Text("Mis Recetas") },
-                                colors = NavigationBarItemDefaults.colors(
-                                    selectedIconColor = MaterialTheme.colorScheme.onPrimary,
-                                    indicatorColor = MaterialTheme.colorScheme.primary
-                                ),
-                                modifier = Modifier.testTag("nav_tab_recipes_list")
-                            )
+                                NavigationBarItem(
+                                    selected = currentTab == AppTab.RECIPES_LIST,
+                                    onClick = { viewModel.selectTab(AppTab.RECIPES_LIST) },
+                                    icon = {
+                                        Icon(
+                                            imageVector = Icons.Default.MenuBook,
+                                            contentDescription = "Mis Recetas"
+                                        )
+                                    },
+                                    label = {
+                                        Text(
+                                            text = "Mis Recetas",
+                                            textAlign = TextAlign.Center,
+                                            maxLines = 1,
+                                            fontSize = 11.sp,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    },
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                                        indicatorColor = MaterialTheme.colorScheme.primary
+                                    ),
+                                    modifier = Modifier.testTag("nav_tab_recipes_list")
+                                )
+                            }
                         }
                     }
                 ) { innerPadding ->
@@ -338,6 +380,7 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
+                }
                 }
 
                 if (showCurrencyPicker) {
