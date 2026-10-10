@@ -17,7 +17,7 @@ android {
     }
 
     defaultConfig {
-    applicationId = "com.ebyzom.calculadoradecostos"
+    applicationId = "com.ebyzom.calculadoradecoostos"
     minSdk = 24
         targetSdk = 37
         versionCode = 1
